@@ -61,6 +61,7 @@ export default function createState(...args) {
     if (newValue !== state.value) {
       state.value = newValue;
       const ancestorSubscribers = updateAncestorStates(state, true);
+      configure().onStateChanged(state);
       notify({
         ...ancestorSubscribers,
         ...subscribers
@@ -69,9 +70,11 @@ export default function createState(...args) {
   }
 
   // create simple state
-  if (args.length < 2) {
+  if (typeof args[1] !== "function") {
     const subStates = {};
+    const { name } = args[1] || {};
     return (state = Object.assign(accessor, {
+      $name: name,
       value: args[0],
       done: true,
       subscribers,
@@ -116,6 +119,7 @@ export default function createState(...args) {
     dependencies,
     loader,
     {
+      name = loader.name,
       async = true,
       lazy = false,
       defaultValue = undefined,
@@ -133,6 +137,7 @@ export default function createState(...args) {
     return x.done;
   });
   state = Object.assign(accessor, {
+    $name: name,
     dependencies,
     value: defaultValue,
     done: false,

@@ -95,5 +95,9 @@ export default {
   },
   replace(searchValue, replaceWith) {
     return this(this.state.value.replace(searchValue, replaceWith));
+  },
+  tap(callback) {
+    const originalValue = this.state.value;
+    return this(callback(originalValue));
   }
 };

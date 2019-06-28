@@ -1,8 +1,9 @@
 import scope from "./scope";
 import { notify } from "./utils";
 import createAccessor from "./createAccessor";
+import configure from "./configs";
 
-export default function createAction(states, functor) {
+export default function createAction(states, functor, { name } = {}) {
   const accessorBag = [];
   let accessors = states.map(state => createAccessor(state, accessorBag));
 
@@ -25,15 +26,49 @@ export default function createAction(states, functor) {
     }
   }
 
+  function onDispatched() {
+    configure().onActionDispatched({
+      states,
+      action: functor
+    });
+  }
+
   return Object.assign(
     (...args) => {
       return scope(enqueue => {
         enqueue(performUpdate);
+        let isAsyncAction = false;
+        try {
+          configure().onActionDispatching({
+            states,
+            action: functor
+          });
+          const result = functor(...accessors, ...args);
 
-        return functor(...accessors, ...args);
+          if (result && result.then) {
+            isAsyncAction = true;
+            result.then(
+              payload => {
+                onDispatched();
+                return payload;
+              },
+              error => {
+                onDispatched();
+                return error;
+              }
+            );
+          }
+
+          return result;
+        } finally {
+          if (!isAsyncAction) {
+            onDispatched();
+          }
+        }
       });
     },
     {
+      $name: name,
       getStates() {
         return states;
       },

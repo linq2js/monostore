@@ -3,7 +3,10 @@ import actionHelpers from "./actionStateHelpers";
 const configs = {
   debounce: 50,
   helpers: actionHelpers,
-  noChange: {}
+  noChange: {},
+  onStateChanged: () => {},
+  onActionDispatching: () => {},
+  onActionDispatched: () => {}
 };
 
 export default function configure(options = {}) {
