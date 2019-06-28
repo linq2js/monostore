@@ -1,0 +1,50 @@
+{
+  "name": "monostore",
+  "version": "0.0.1",
+  "description": "Incredible fast store",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/linq2js/monostore.git"
+  },
+  "keywords": [
+    "redux",
+    "state",
+    "management",
+    "state",
+    "manager",
+    "store",
+    "flux"
+  ],
+  "author": "linq2js",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/linq2js/monostore/issues"
+  },
+  "homepage": "https://github.com/linq2js/monostore#readme",
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  },
+  "jest": {
+    "transform": {
+      ".*": "<rootDir>/node_modules/babel-jest"
+    },
+    "unmockedModulePathPatterns": []
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "jest": "^24.8.0",
+    "babel-core": "^6.26.3",
+    "babel-jest": "^24.8.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-loader": "^8.0.6",
+    "typescript": "^3.3.3"
+  }
+}
