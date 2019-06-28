@@ -50,10 +50,12 @@ export default function createAction(states, functor, { name } = {}) {
             result.then(
               payload => {
                 onDispatched();
+                setTimeout(performUpdate);
                 return payload;
               },
               error => {
                 onDispatched();
+                setTimeout(performUpdate);
                 return error;
               }
             );
