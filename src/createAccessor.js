@@ -16,6 +16,7 @@ export default function createAccessor(state, accessorBag) {
 
       if (state.value !== value) {
         state.value = value;
+        accessorBag.push(accessor);
         updateAncestorStates(state);
         accessor.changed = true;
       }
@@ -26,12 +27,14 @@ export default function createAccessor(state, accessorBag) {
     return state.value;
   };
 
-  accessorBag.push(accessor);
-
   return Object.assign(accessor, {
     ...configure().helpers,
     state,
     changed: false,
+    delete(subStateName) {
+      this.state.delete(subStateName);
+      return this;
+    },
     get(subStateName) {
       if (!this.subStates) {
         this.subStates = {};
