@@ -1,10 +1,11 @@
 import scope from "./scope";
-import { notify } from "./utils";
+import { addToSet, notify, removeFromSet } from "./utils";
 import createAccessor from "./createAccessor";
 import configure from "./configs";
 
 export default function createAction(states, functor, { name } = {}) {
   const accessorBag = [];
+  const subscribers = {};
   let accessors = states.map(state => createAccessor(state, accessorBag));
 
   function performUpdate(subscribers = {}, batchUpdate) {
@@ -31,12 +32,24 @@ export default function createAction(states, functor, { name } = {}) {
       states,
       action: functor
     });
+    notify(subscribers);
+  }
+
+  function unsubscribe(subscriber) {
+    removeFromSet(subscribers, subscriber);
+    return this;
+  }
+
+  function subscribe(subscriber) {
+    addToSet(subscribers, subscriber);
+    return this;
   }
 
   return Object.assign(
     (...args) => {
       return scope(enqueue => {
         enqueue(performUpdate);
+        notify(subscribers);
         let isAsyncAction = false;
         try {
           configure().onActionDispatching({
@@ -71,6 +84,12 @@ export default function createAction(states, functor, { name } = {}) {
     },
     {
       $name: name,
+      type: "action",
+      computed: true,
+      async: true,
+      value: 0,
+      subscribe,
+      unsubscribe,
       getStates() {
         return states;
       },
