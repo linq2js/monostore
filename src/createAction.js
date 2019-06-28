@@ -6,6 +6,7 @@ import configure from "./configs";
 export default function createAction(states, functor, { name } = {}) {
   const accessorBag = [];
   const subscribers = {};
+  let action;
   let accessors = states.map(state => createAccessor(state, accessorBag));
 
   function performUpdate(subscribers = {}, batchUpdate) {
@@ -32,6 +33,7 @@ export default function createAction(states, functor, { name } = {}) {
       states,
       action: functor
     });
+    action.value--;
     notify(subscribers);
   }
 
@@ -45,9 +47,10 @@ export default function createAction(states, functor, { name } = {}) {
     return this;
   }
 
-  return Object.assign(
+  return (action = Object.assign(
     (...args) => {
       return scope(enqueue => {
+        action.value++;
         enqueue(performUpdate);
         notify(subscribers);
         let isAsyncAction = false;
@@ -88,6 +91,7 @@ export default function createAction(states, functor, { name } = {}) {
       computed: true,
       async: true,
       value: 0,
+      init: () => {},
       subscribe,
       unsubscribe,
       getStates() {
@@ -99,5 +103,5 @@ export default function createAction(states, functor, { name } = {}) {
         );
       }
     }
-  );
+  ));
 }

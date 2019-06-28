@@ -198,8 +198,6 @@ export default function createState(...args) {
       state.done = false;
       state.error = undefined;
 
-      const originalValue = state.value;
-
       if (shouldNotify) {
         notify(subscribers);
       }
@@ -219,10 +217,7 @@ export default function createState(...args) {
         state.done = true;
       }
 
-      // dispatch change
-      if (state.value !== originalValue) {
-        notify(subscribers, state);
-      }
+      notify(subscribers, state);
     });
   }
 
