@@ -115,7 +115,12 @@ export default function createState(...args) {
   const [
     dependencies,
     loader,
-    { async, defaultValue = undefined, debounce = configure().debounce } = {}
+    {
+      async = true,
+      lazy = false,
+      defaultValue = undefined,
+      debounce = configure().debounce
+    } = {}
   ] = args;
 
   let currentLock;
@@ -132,6 +137,7 @@ export default function createState(...args) {
     value: defaultValue,
     done: false,
     async,
+    lazy,
     computed: true,
     init,
     subscribers,
@@ -216,8 +222,12 @@ export default function createState(...args) {
   }
 
   if (allDone) {
-    if (!state.async) {
-      callLoaderSync();
+    if (state.async) {
+      if (!state.lazy) {
+        state.init();
+      }
+    } else {
+      state.init();
     }
   }
 

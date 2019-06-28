@@ -8,16 +8,6 @@ test("Should read and write data on single state properly", () => {
   expect(state.value).toBe(5);
 });
 
-test("Should computed state properly", () => {
-  const baseValueState = createState(1);
-  const doubleValueState = createState(
-    [baseValueState],
-    baseValue => baseValue * 2,
-    { sync: true }
-  );
-  expect(doubleValueState.value).toBe(2);
-});
-
 test("Should do update once only though actions dispatch many time", () => {
   const state = createState(2);
   const callback = jest.fn();
