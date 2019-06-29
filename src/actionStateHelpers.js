@@ -89,7 +89,6 @@ export default {
     return this(callback(originalValue));
   },
   prop(prop) {
-    const originalTarget = this;
     const originalValue = this.state.value;
     let currentValue = originalValue;
     let propValue = originalValue[prop];
@@ -100,11 +99,10 @@ export default {
       }
       if (currentValue === originalValue) {
         currentValue = cloneObject(originalValue);
+        this(currentValue);
       }
 
       currentValue[prop] = nextPropValue;
-
-      this(currentValue);
     };
     modifier.originalTarget = this.originalTarget || this;
     modifier.state = { value: propValue };
