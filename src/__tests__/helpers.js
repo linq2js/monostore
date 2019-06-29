@@ -34,6 +34,7 @@ test("modify nested props", () => {
   const originalValue = {
     person: {
       name: "linq2js",
+      age: 30,
       address: {
         street: "abc"
       }
@@ -43,6 +44,10 @@ test("modify nested props", () => {
   const state = createState(originalValue);
   const action = createAction([state], state => {
     state.prop("person").set("name", "linq2js-updated");
+    state
+      .prop("person")
+      .prop("age")
+      .add(10);
     state
       .prop("person")
       .prop("address")
@@ -55,6 +60,7 @@ test("modify nested props", () => {
   expect(state.value).toEqual({
     person: {
       name: "linq2js-updated",
+      age: 40,
       address: {
         street: "def"
       }

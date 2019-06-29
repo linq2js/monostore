@@ -27,7 +27,7 @@ export default {
     return this(this.state.value.filter(predicate));
   },
   exclude(...values) {
-    return this(this.state.value.filter(x => values.includes(x)));
+    return this(this.state.value.filter(x => !values.includes(x)));
   },
   unset(...props) {
     const newValue = cloneObject(this.state.value);
