@@ -33,8 +33,7 @@ export default function createState(...args) {
       newValue =
         // is synthetic event object
         callback && callback.target
-          ? callback.target.type === "checkbox" ||
-            callback.target.type === "radio"
+          ? callback.target.type === "checkbox"
             ? callback.target.checked // checkbox
             : callback.target.value // other inputs
           : callback;

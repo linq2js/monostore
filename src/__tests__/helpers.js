@@ -29,3 +29,36 @@ test("number helper", () => {
   action();
   expect(state.value).toBe(2);
 });
+
+test("modify nested props", () => {
+  const originalValue = {
+    person: {
+      name: "linq2js",
+      address: {
+        street: "abc"
+      }
+    },
+    otherProp: {}
+  };
+  const state = createState(originalValue);
+  const action = createAction([state], state => {
+    state.prop("person").set("name", "linq2js-updated");
+    state
+      .prop("person")
+      .prop("address")
+      .set("street", "def");
+  });
+
+  action();
+  expect(state.value.otherProp).toBe(originalValue.otherProp);
+  expect(state.value).not.toBe(originalValue);
+  expect(state.value).toEqual({
+    person: {
+      name: "linq2js-updated",
+      address: {
+        street: "def"
+      }
+    },
+    otherProp: {}
+  });
+});

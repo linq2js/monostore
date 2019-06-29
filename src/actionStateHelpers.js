@@ -17,18 +17,6 @@ export default {
   splice(index, count = 1, ...items) {
     return this(this.state.value.slice().splice(index, count, ...items));
   },
-  assignProp(prop, ...values) {
-    const newValue = cloneObject(this.state.value);
-    const propValue = newValue[prop];
-    newValue[prop] = Object.assign(
-      {},
-      propValue,
-      ...values.map(value =>
-        typeof value === "function" ? value(propValue) : value
-      )
-    );
-    return this(newValue);
-  },
   push(...values) {
     return this(this.state.value.concat(values));
   },
@@ -99,5 +87,45 @@ export default {
   tap(callback) {
     const originalValue = this.state.value;
     return this(callback(originalValue));
+  },
+  prop(prop) {
+    const originalTarget = this;
+    const originalValue = this.state.value;
+    let currentValue = originalValue;
+    let propValue = originalValue[prop];
+
+    const modifier = nextPropValue => {
+      if (propValue === nextPropValue) {
+        return;
+      }
+      if (currentValue === originalValue) {
+        currentValue = cloneObject(originalValue);
+      }
+
+      currentValue[prop] = nextPropValue;
+
+      this(currentValue);
+    };
+    modifier.originalTarget = this.originalTarget || this;
+    modifier.state = { value: propValue };
+    const proxy = new Proxy(modifier, {
+      get(target, name) {
+        if (name === "get" || name === "delete") {
+          throw new Error("Not support sub state for this prop " + prop);
+        }
+        const method = modifier.originalTarget[name];
+        if (typeof method !== "function") {
+          throw new Error("Invalid method " + name);
+        }
+
+        return (...args) => {
+          modifier.state.value = propValue;
+          const result = method.apply(modifier, args);
+          return result === modifier ? proxy : result;
+        };
+      }
+    });
+
+    return proxy;
   }
 };
