@@ -69,9 +69,34 @@ export default function createState(...args) {
     }
   }
 
+  // get sub state by name
+  function get(subStateName) {
+    state.multiple = true;
+    if (!state.subStates) {
+      state.subStates = {};
+    }
+    let subState = state.subStates[subStateName];
+
+    if (!subState) {
+      state.subStates[subStateName] = subState = state.computed
+        ? createState(...args)
+        : createState(state.value ? state.value[subStateName] : undefined);
+      subState.key = subStateName;
+      subState.parent = state;
+    }
+    return subState;
+  }
+
+  // delete sub state by name
+  function $delete(subStateName) {
+    if (state.subStates) {
+      delete state.subStates[subStateName];
+    }
+    return this;
+  }
+
   // create simple state
   if (typeof args[1] !== "function") {
-    const subStates = {};
     const { name } = args[1] || {};
     return (state = Object.assign(accessor, {
       $name: name,
@@ -89,25 +114,8 @@ export default function createState(...args) {
       init: noop,
       subscribe,
       unsubscribe,
-      // get sub state by name
-      get(subStateName) {
-        state.multiple = true;
-        let subState = subStates[subStateName];
-
-        if (!subState) {
-          subStates[subStateName] = subState = createState(
-            state.value ? state.value[subStateName] : undefined
-          );
-          subState.key = subStateName;
-          subState.parent = state;
-        }
-        return subState;
-      },
-      // delete sub state by name
-      delete(subStateName) {
-        delete subStates[subStateName];
-        return this;
-      },
+      get,
+      delete: $delete,
       invoke(actionBody, ...args) {
         return createAction([state], actionBody)(...args);
       }
@@ -147,7 +155,9 @@ export default function createState(...args) {
     init,
     subscribers,
     subscribe,
-    unsubscribe
+    unsubscribe,
+    get,
+    delete: $delete
   });
 
   const asyncDependencies = dependencies.filter(x => x.async);
@@ -181,7 +191,7 @@ export default function createState(...args) {
     shouldUpdate(() => {
       state.done = false;
       const prevValue = state.value;
-      state.value = loader(...keys);
+      state.value = loader(...keys, state.key);
       state.done = true;
       if (state.value !== prevValue) {
         notify(subscribers);
@@ -203,7 +213,7 @@ export default function createState(...args) {
       }
 
       try {
-        const value = await loader(...keys);
+        const value = await loader(...keys, state.key);
         if (currentLock !== state.lock) return;
 
         if (value !== configure().noChange) {
