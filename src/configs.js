@@ -1,4 +1,4 @@
-import actionHelpers from "./actionStateHelpers";
+import actionHelpers from "monostore/src/accessorHelpers";
 
 const configs = {
   debounce: 50,

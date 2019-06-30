@@ -44,6 +44,11 @@ test("modify nested props using prop()", () => {
   const state = createState(originalValue);
   const action = createAction([state], state => {
     state.prop("person").set("name", "linq2js-updated");
+    // set default value for prop then modify it
+    state
+      .prop("test")
+      .def({ data: true })
+      .set("data", false);
     state
       .prop("person")
       .prop("age")
@@ -58,6 +63,7 @@ test("modify nested props using prop()", () => {
   expect(state.value.otherProp).toBe(originalValue.otherProp);
   expect(state.value).not.toBe(originalValue);
   expect(state.value).toEqual({
+    test: { data: false },
     person: {
       name: "linq2js-updated",
       age: 40,
