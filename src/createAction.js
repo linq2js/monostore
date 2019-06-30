@@ -3,11 +3,14 @@ import { addToSet, notify, removeFromSet } from "./utils";
 import createAccessor from "./createAccessor";
 import configure from "./configs";
 
-export default function createAction(
-  states,
-  functor,
-  { name, debounce = 0 } = {}
-) {
+export default function createAction(states, functor, options) {
+  if (typeof states === "function") {
+    options = functor;
+    functor = states;
+    states = [];
+  }
+
+  const { name, debounce = 0 } = options || {};
   const accessorBag = [];
   const subscribers = {};
   let action;
@@ -39,7 +42,7 @@ export default function createAction(
       action: functor
     });
     action.value--;
-    notify(subscribers);
+    notify(subscribers, action);
   }
 
   function unsubscribe(subscriber) {
@@ -59,8 +62,11 @@ export default function createAction(
 
         return scope(enqueue => {
           action.value++;
+          action.times++;
+          delete action.result;
+          action.done = false;
           enqueue(performUpdate);
-          notify(subscribers);
+          notify(subscribers, action);
           let isAsyncAction = false;
           try {
             configure().onActionDispatching({
@@ -73,16 +79,22 @@ export default function createAction(
               isAsyncAction = true;
               result.then(
                 payload => {
+                  action.result = payload;
+                  action.done = true;
                   onDispatched();
                   setTimeout(performUpdate);
                   return payload;
                 },
                 error => {
-                  onDispatched();
+                  action.done = true;
+                  onDispatched(error);
                   setTimeout(performUpdate);
                   return error;
                 }
               );
+            } else {
+              action.result = result;
+              action.done = true;
             }
 
             return result;
@@ -100,7 +112,9 @@ export default function createAction(
     },
     {
       $name: name,
+      done: false,
       type: "action",
+      times: 0,
       computed: true,
       async: true,
       value: 0,

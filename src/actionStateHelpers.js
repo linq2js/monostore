@@ -97,9 +97,6 @@ export default {
 };
 
 function createPropProxy(obj, prop, context) {
-  if (!context.id) {
-    context.id = Math.random();
-  }
   let propValue = context.currentValue[prop];
 
   const modifier = nextPropValue => {
@@ -107,7 +104,6 @@ function createPropProxy(obj, prop, context) {
       return;
     }
     if (context.currentValue === context.originalValue) {
-      console.log(context.id, prop);
       context.currentValue = cloneObject(context.currentValue);
       obj(context.currentValue);
     }
