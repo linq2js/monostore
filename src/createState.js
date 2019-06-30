@@ -3,7 +3,7 @@ import {
   removeFromSet,
   addToSet,
   notify,
-  arrayDiff,
+  arrayEqual,
   updateAncestorStates
 } from "./utils";
 import getStateValues from "./getStateValues";
@@ -179,7 +179,7 @@ export default function createState(...args) {
   function shouldUpdate(callback) {
     const newKeys = getStateValues(dependencies, true);
 
-    if (arrayDiff(keys, newKeys)) {
+    if (arrayEqual(keys, newKeys)) {
       keys = newKeys;
       callback();
     }

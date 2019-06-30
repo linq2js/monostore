@@ -30,7 +30,7 @@ test("number helper", () => {
   expect(state.value).toBe(2);
 });
 
-test("modify nested props", () => {
+test("modify nested props using prop()", () => {
   const originalValue = {
     person: {
       name: "linq2js",

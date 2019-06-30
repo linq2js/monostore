@@ -9,7 +9,7 @@ export function memoize(f) {
 
   return function(...args) {
     // call f on first time or args changed
-    if (!lastArgs || arrayDiff(lastArgs, args)) {
+    if (!lastArgs || arrayEqual(lastArgs, args)) {
       lastArgs = args;
       lastResult = f(...lastArgs);
     }
@@ -17,7 +17,7 @@ export function memoize(f) {
   };
 }
 
-export function arrayDiff(a, b) {
+export function arrayEqual(a, b) {
   return a.length !== b.length || a.some((i, index) => i !== b[index]);
 }
 
@@ -40,8 +40,11 @@ export function removeFromSet(set, functor) {
 }
 
 export function notify(subscribers) {
-  for (const subscriber of Object.values(subscribers)) {
-    subscriber();
+  for (const key in subscribers) {
+    if (!subscribers.hasOwnProperty(key)) {
+      continue;
+    }
+    subscribers[key]();
   }
 }
 
@@ -58,4 +61,26 @@ export function updateAncestorStates(state, collectSubscribers) {
     value = parent.value;
     parent = parent.parent;
   }
+}
+
+export function deepEqual(props, a, b) {
+  if (typeof a === "undefined" && typeof b === "undefined") return true;
+  if (a === b) return true;
+  if (Array.isArray(a) && Array.isArray(b)) {
+    if (a.length !== b.length) return false;
+    // just compare items in both arrays
+    if (!props.length) {
+      return !a.some((i, index) => i !== b[index]);
+    }
+    return a.every((i, index) => deepEqual(props, i, b[index]));
+  }
+  if (a && b) {
+    return props.every(prop => {
+      if (Array.isArray(prop)) {
+        return deepEqual(prop[1], a[prop[0]], b[prop[0]]);
+      }
+      return a[prop] === b[prop];
+    });
+  }
+  return a === b;
 }

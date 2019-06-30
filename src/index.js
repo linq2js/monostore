@@ -8,4 +8,4 @@ export { default as getStateValues } from "./getStateValues";
 export { default as mock } from "./mock";
 export { default as persistStates } from "./persistStates";
 export { default as updateStates } from "./updateStates";
-export { arrayDiff } from "./utils";
+export { arrayEqual, deepEqual, memoize } from "./utils";

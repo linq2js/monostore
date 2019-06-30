@@ -3,10 +3,15 @@ import { addToSet, notify, removeFromSet } from "./utils";
 import createAccessor from "./createAccessor";
 import configure from "./configs";
 
-export default function createAction(states, functor, { name } = {}) {
+export default function createAction(
+  states,
+  functor,
+  { name, debounce = 0 } = {}
+) {
   const accessorBag = [];
   const subscribers = {};
   let action;
+  let timerId;
   let accessors = states.map(state => createAccessor(state, accessorBag));
 
   function performUpdate(subscribers = {}, batchUpdate) {
@@ -49,41 +54,49 @@ export default function createAction(states, functor, { name } = {}) {
 
   return (action = Object.assign(
     (...args) => {
-      return scope(enqueue => {
-        action.value++;
-        enqueue(performUpdate);
-        notify(subscribers);
-        let isAsyncAction = false;
-        try {
-          configure().onActionDispatching({
-            states,
-            action: functor
-          });
-          const result = functor(...accessors, ...args);
+      const execute = () => {
+        clearTimeout(timerId);
 
-          if (result && result.then) {
-            isAsyncAction = true;
-            result.then(
-              payload => {
-                onDispatched();
-                setTimeout(performUpdate);
-                return payload;
-              },
-              error => {
-                onDispatched();
-                setTimeout(performUpdate);
-                return error;
-              }
-            );
-          }
+        return scope(enqueue => {
+          action.value++;
+          enqueue(performUpdate);
+          notify(subscribers);
+          let isAsyncAction = false;
+          try {
+            configure().onActionDispatching({
+              states,
+              action: functor
+            });
+            const result = functor(...accessors, ...args);
 
-          return result;
-        } finally {
-          if (!isAsyncAction) {
-            onDispatched();
+            if (result && result.then) {
+              isAsyncAction = true;
+              result.then(
+                payload => {
+                  onDispatched();
+                  setTimeout(performUpdate);
+                  return payload;
+                },
+                error => {
+                  onDispatched();
+                  setTimeout(performUpdate);
+                  return error;
+                }
+              );
+            }
+
+            return result;
+          } finally {
+            if (!isAsyncAction) {
+              onDispatched();
+            }
           }
-        }
-      });
+        });
+      };
+
+      if (!debounce) return execute();
+      clearTimeout(timerId);
+      timerId = setTimeout(execute, debounce);
     },
     {
       $name: name,

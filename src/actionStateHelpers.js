@@ -89,41 +89,50 @@ export default {
     return this(callback(originalValue));
   },
   prop(prop) {
-    const originalValue = this.state.value;
-    let currentValue = originalValue;
-    let propValue = originalValue[prop];
-
-    const modifier = nextPropValue => {
-      if (propValue === nextPropValue) {
-        return;
-      }
-      if (currentValue === originalValue) {
-        currentValue = cloneObject(originalValue);
-        this(currentValue);
-      }
-
-      currentValue[prop] = nextPropValue;
-    };
-    modifier.originalTarget = this.originalTarget || this;
-    modifier.state = { value: propValue };
-    const proxy = new Proxy(modifier, {
-      get(target, name) {
-        if (name === "get" || name === "delete") {
-          throw new Error("Not support sub state for this prop " + prop);
-        }
-        const method = modifier.originalTarget[name];
-        if (typeof method !== "function") {
-          throw new Error("Invalid method " + name);
-        }
-
-        return (...args) => {
-          modifier.state.value = propValue;
-          const result = method.apply(modifier, args);
-          return result === modifier ? proxy : result;
-        };
-      }
+    return createPropProxy(this, prop, {
+      currentValue: this.state.value,
+      originalValue: this.state.value
     });
-
-    return proxy;
   }
 };
+
+function createPropProxy(obj, prop, context) {
+  if (!context.id) {
+    context.id = Math.random();
+  }
+  let propValue = context.currentValue[prop];
+
+  const modifier = nextPropValue => {
+    if (propValue === nextPropValue) {
+      return;
+    }
+    if (context.currentValue === context.originalValue) {
+      console.log(context.id, prop);
+      context.currentValue = cloneObject(context.currentValue);
+      obj(context.currentValue);
+    }
+
+    context.currentValue[prop] = propValue = nextPropValue;
+  };
+  modifier.originalTarget = obj.originalTarget || obj;
+  modifier.state = { value: propValue };
+  const proxy = new Proxy(modifier, {
+    get(target, name) {
+      if (name === "get" || name === "delete") {
+        throw new Error("Not support sub state for this prop " + prop);
+      }
+      const method = modifier.originalTarget[name];
+      if (typeof method !== "function") {
+        throw new Error("Invalid method " + name);
+      }
+
+      return (...args) => {
+        modifier.state.value = propValue;
+        const result = method.apply(modifier, args);
+        return result === modifier ? proxy : result;
+      };
+    }
+  });
+
+  return proxy;
+}
