@@ -1,6 +1,6 @@
 {
   "name": "monostore",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "Incredible fast store",
   "main": "src/index.js",
   "scripts": {
@@ -11,9 +11,10 @@
     "url": "git+https://github.com/linq2js/monostore.git"
   },
   "keywords": [
+    "react",
     "redux",
-    "state",
-    "management",
+    "state management",
+    "state manager",
     "state",
     "manager",
     "store",
