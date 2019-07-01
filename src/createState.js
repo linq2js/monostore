@@ -186,12 +186,20 @@ export default function createState(...args) {
     }
   }
 
+  function transformValue(value) {
+    if (value === NotChange) return state.value;
+    if (typeof value === "function") {
+      return transformValue(value(state.value));
+    }
+    return value;
+  }
+
   function callLoaderSync() {
     state.init = noop;
     shouldUpdate(() => {
       state.done = false;
       const prevValue = state.value;
-      state.value = loader(...keys, state.key);
+      state.value = transformValue(loader(...keys, state.key));
       state.done = true;
       if (state.value !== prevValue) {
         notify(subscribers);
@@ -217,9 +225,7 @@ export default function createState(...args) {
 
         if (currentLock !== state.lock) return;
 
-        if (value !== NotChange) {
-          state.value = value;
-        }
+        state.value = transformValue(value);
 
         state.done = true;
       } catch (e) {
