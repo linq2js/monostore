@@ -27,5 +27,24 @@ export default {
         )
       )
     );
+  },
+
+  keep(...props) {
+    return this(createFrom(this.state.value, x => props.includes(x)));
+  },
+  omit(...props) {
+    return this(createFrom(this.state.value, x => !props.includes(x)));
   }
 };
+
+function createFrom(source, filter) {
+  if (Array.isArray(source)) {
+    return source.filter((x, i) => filter(i));
+  }
+  return Object.keys(source)
+    .filter(filter)
+    .reduce((obj, key) => {
+      obj[key] = source[key];
+      return obj;
+    }, {});
+}

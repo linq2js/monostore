@@ -74,3 +74,33 @@ test("modify nested props using prop()", () => {
     otherProp: {}
   });
 });
+
+test("keep helper should work properly with object and array", () => {
+  const arrayState = createState([1, 2, 3, 4, 5]);
+  const objectState = createState({ prop1: 1, prop2: 2, prop3: 3 });
+
+  const action = createAction([arrayState, objectState], (array, object) => {
+    array.keep(1, 3);
+    object.keep("prop1", "prop3");
+  });
+
+  action();
+
+  expect(arrayState.value).toEqual([2, 4]);
+  expect(objectState.value).toEqual({ prop1: 1, prop3: 3 });
+});
+
+test("omit helper should work properly with object and array", () => {
+  const arrayState = createState([1, 2, 3, 4, 5]);
+  const objectState = createState({ prop1: 1, prop2: 2, prop3: 3 });
+
+  const action = createAction([arrayState, objectState], (array, object) => {
+    array.omit(1, 3);
+    object.omit("prop1", "prop3");
+  });
+
+  action();
+
+  expect(arrayState.value).toEqual([1, 3, 5]);
+  expect(objectState.value).toEqual({ prop2: 2 });
+});

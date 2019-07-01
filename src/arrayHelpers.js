@@ -38,19 +38,6 @@ export default {
   clear() {
     return this(Array.isArray(this.state.value) ? [] : {});
   },
-  keep(...props) {
-    if (Array.isArray(this.state.value)) {
-      return this.filter((x, i) => props.includes(i));
-    }
-    return this(
-      Object.keys(this.state.value)
-        .filter(x => props.includes(x))
-        .reduce((obj, key) => {
-          obj[key] = this.state.value[key];
-          return obj;
-        })
-    );
-  },
   orderBy(selector, desc) {
     return this.sort((a, b) => {
       const aValue = selector(a),
