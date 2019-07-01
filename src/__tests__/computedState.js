@@ -26,7 +26,7 @@ test("async computed state should work properly", async () => {
   expect(value).toBe(2);
 });
 
-test("lazy computed state should start after init method called", async () => {
+test("lazy computed state should start computing after init method called", async () => {
   return new Promise(resolve => {
     const baseValueState = createState(1);
     const doubleValueState = createState(

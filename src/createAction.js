@@ -1,7 +1,7 @@
+import { configs } from "./configs";
 import scope from "./scope";
 import { addToSet, notify, removeFromSet } from "./utils";
 import createAccessor from "./createAccessor";
-import configure from "./configs";
 
 export default function createAction(states, functor, options) {
   if (typeof states === "function") {
@@ -37,7 +37,7 @@ export default function createAction(states, functor, options) {
   }
 
   function onDispatched() {
-    configure().onActionDispatched({
+    configs.onActionDispatched({
       states,
       action: functor
     });
@@ -69,7 +69,7 @@ export default function createAction(states, functor, options) {
           notify(subscribers, action);
           let isAsyncAction = false;
           try {
-            configure().onActionDispatching({
+            configs.onActionDispatching({
               states,
               action: functor
             });
@@ -77,7 +77,7 @@ export default function createAction(states, functor, options) {
 
             if (result && result.then) {
               isAsyncAction = true;
-              result.then(
+              return result.then(
                 payload => {
                   action.result = payload;
                   action.done = true;
@@ -92,10 +92,10 @@ export default function createAction(states, functor, options) {
                   return error;
                 }
               );
-            } else {
-              action.result = result;
-              action.done = true;
             }
+
+            action.result = result;
+            action.done = true;
 
             return result;
           } finally {

@@ -1,5 +1,5 @@
 import { updateAncestorStates } from "./utils";
-import configure from "./configs";
+import { configs } from "./configs";
 
 export default function createAccessor(state, accessorBag) {
   const accessor = function(value, ...args) {
@@ -8,8 +8,8 @@ export default function createAccessor(state, accessorBag) {
         throw new Error("Cannot update computed state");
       }
 
-      if (configure().transform) {
-        value = configure().transform(state.value, value, ...args);
+      if (configs.transform) {
+        value = configs.transform(state.value, value, ...args);
       } else if (typeof value === "function") {
         value = value(state.value);
       }
@@ -28,7 +28,7 @@ export default function createAccessor(state, accessorBag) {
   };
 
   return Object.assign(accessor, {
-    ...configure().helpers,
+    ...configs.helpers,
     state,
     changed: false,
     delete(subStateName) {

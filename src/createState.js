@@ -1,3 +1,4 @@
+import { NotChange } from "./consts";
 import createAction from "./createAction";
 import {
   removeFromSet,
@@ -7,7 +8,7 @@ import {
   updateAncestorStates
 } from "./utils";
 import getStateValues from "./getStateValues";
-import configure from "./configs";
+import { configs } from "./configs";
 
 const noop = () => {};
 
@@ -60,7 +61,7 @@ export default function createState(...args) {
     if (newValue !== state.value) {
       state.value = newValue;
       const ancestorSubscribers = updateAncestorStates(state, true);
-      configure().onStateChanged(state);
+      configs.onStateChanged(state);
       notify({
         ...ancestorSubscribers,
         ...subscribers
@@ -130,7 +131,7 @@ export default function createState(...args) {
       async = true,
       lazy = false,
       defaultValue = undefined,
-      debounce = configure().debounce
+      debounce = configs.debounce
     } = {}
   ] = args;
 
@@ -213,9 +214,10 @@ export default function createState(...args) {
 
       try {
         const value = await loader(...keys, state.key);
+
         if (currentLock !== state.lock) return;
 
-        if (value !== configure().noChange) {
+        if (value !== NotChange) {
           state.value = value;
         }
 

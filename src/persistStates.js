@@ -1,4 +1,4 @@
-import configure from "./configs";
+import { configs } from "./configs";
 import exportStates from "./exportStates";
 import updateStates from "./updateStates";
 
@@ -13,7 +13,7 @@ export default function persistStates(
   states,
   data,
   onChange,
-  debounce = configure().debounce
+  debounce = configs.debounce
 ) {
   updateStates(states, data);
   let timerId;
