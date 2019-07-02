@@ -30,6 +30,12 @@ export default function createAccessor(state, accessorBag) {
   return Object.assign(accessor, {
     ...configs.helpers,
     state,
+    get value() {
+      return this.state.value;
+    },
+    set value(newValue) {
+      this(newValue);
+    },
     changed: false,
     delete(subStateName) {
       this.state.delete(subStateName);
