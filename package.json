@@ -1,6 +1,6 @@
 {
   "name": "monostore",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "description": "Incredible fast store",
   "main": "src/index.js",
   "scripts": {
