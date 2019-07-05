@@ -21,6 +21,7 @@ export default function createAction(states, functor, options) {
     while (accessorBag.length) {
       const accessor = accessorBag.shift();
       if (accessor.changed) {
+        accessor.changed = false;
         Object.assign(subscribers, accessor.state.subscribers);
         let parent = accessor.state.parent;
         // notify to all ancestors
@@ -28,7 +29,6 @@ export default function createAction(states, functor, options) {
           Object.assign(subscribers, parent.subscribers);
           parent = parent.parent;
         }
-        accessor.changed = false;
       }
     }
     if (!batchUpdate) {
