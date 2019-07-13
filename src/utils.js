@@ -18,7 +18,7 @@ export function memoize(f) {
 }
 
 export function arrayEqual(a, b) {
-  return a.length !== b.length || a.some((i, index) => i !== b[index]);
+  return a.length === b.length && a.every((i, index) => i === b[index]);
 }
 
 export function addToSet(set, functor) {

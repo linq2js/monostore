@@ -180,7 +180,7 @@ export default function createState(...args) {
   function shouldUpdate(callback) {
     const newKeys = getStateValues(dependencies, true);
 
-    if (arrayEqual(keys, newKeys)) {
+    if (!arrayEqual(keys, newKeys)) {
       keys = newKeys;
       callback();
     }
